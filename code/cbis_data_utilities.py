@@ -122,11 +122,3 @@ class TorchDatasetFromNumpyArray(Dataset):
 
 
         return image, label
-
-
-
-# Test
-a, b, c = map_images_and_labels(dir=train_dir)
-print(f"{a}")
-print(f"{b}")
-print(f"{c}")
