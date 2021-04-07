@@ -39,7 +39,7 @@ MODEL_NAME = 'DenseNet121'
 
 # Data
 # X Dimensions
-CHANNELS = 3
+CHANNELS = 1
 HEIGHT = 224
 WIDTH = 224
 
