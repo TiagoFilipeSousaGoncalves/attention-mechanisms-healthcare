@@ -50,7 +50,7 @@ def map_images_and_labels(dir):
         # print(f"_label: {_label}")
         
         # Append to the Numpy Array
-        imgs_labels[idx, 1] = _label
+        imgs_labels[idx, 1] = str(_label)
 
         # Debug print
         # print(f"Image file: {imgs_labels[idx, 0]} | Label: {imgs_labels[idx, 1]}")
@@ -61,13 +61,16 @@ def map_images_and_labels(dir):
     
 
     # Create labels dictionary to map strings into numbers
-    _labels_unique,  nr_classes = np.unique(imgs_labels[:, 1], return_counts=True)
+    _labels_unique = np.unique(imgs_labels[:, 1])
+
+    # Nr of Classes
+    nr_classes = len(_labels_unique)
 
     # Create labels dictionary
     labels_dict = dict()
     
     for idx, _label in enumerate(_labels_unique):
-        labels_dict[str(_label)] = idx
+        labels_dict[_label] = idx
 
 
     return imgs_labels, labels_dict, nr_classes
