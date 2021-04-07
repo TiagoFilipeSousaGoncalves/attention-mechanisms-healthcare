@@ -13,6 +13,12 @@ from torch.utils.data import DataLoader
 import torchvision
 
 
+# Fix Random Seeds
+random_seed = 42
+torch.manual_seed(random_seed)
+np.random.seed(random_seed)
+
+
 # Project Imports
 from model_utilities import DenseNet121
 from cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArray
