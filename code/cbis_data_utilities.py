@@ -112,7 +112,17 @@ class TorchDatasetFromNumpyArray(Dataset):
 
         # Get images
         img_name = self.images_paths[idx]
+        
+        # Open image with PIL
         image = Image.open(os.path.join(self.base_data_path, img_name))
+        
+        # Perform transformations with Numpy Array
+        image = np.asarray(image)
+        image = np.reshape(image, newshape=(image.shape[0], image.shape[1], 1))
+        image = np.concatenate((image, image, image), axis=2)
+
+        # Load image with PIL
+        image = Image.fromarray(image)
 
         # Get labels
         label = self.labels_dict[self.images_labels[idx]]
