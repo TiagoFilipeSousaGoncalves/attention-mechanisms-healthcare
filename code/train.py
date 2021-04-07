@@ -66,7 +66,7 @@ if MODEL_NAME == 'DenseNet121':
 EPOCHS = 300
 LOSS = torch.nn.CrossEntropyLoss()
 LEARNING_RATE = 1e-4
-OPTIMISER = torch.optim.Adam(model.parameters, lr=LEARNING_RATE)
+OPTIMISER = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 BATCH_SIZE = 8
 
 
