@@ -67,7 +67,7 @@ def map_images_and_labels(dir):
     labels_dict = dict()
     
     for idx, _label in enumerate(_labels_unique):
-        labels_dict[_label] = idx
+        labels_dict[str(_label)] = idx
 
 
     return imgs_labels, labels_dict, nr_classes
