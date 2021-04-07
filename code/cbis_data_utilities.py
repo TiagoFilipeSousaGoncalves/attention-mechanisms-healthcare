@@ -63,3 +63,4 @@ def map_images_and_labels(dir):
 
 # Test function
 a = map_images_and_labels(dir=train_dir)
+print(a.shape)
