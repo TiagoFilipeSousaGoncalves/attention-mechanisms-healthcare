@@ -43,6 +43,8 @@ def map_images_and_labels(dir):
             fname=os.path.join(dir, label),
             dtype=str
         )
+
+        print(f"_label: {_label}")
         
         # Append to the Numpy Array
         imgs_labels[idx, 1] = _label[0]
