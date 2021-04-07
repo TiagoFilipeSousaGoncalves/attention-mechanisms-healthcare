@@ -160,9 +160,9 @@ for epoch in range(EPOCHS):
         y_train_true += list(labels.cpu().detach().numpy())
         
         # Apply Softmax on Logits and get the argmax to get the predicted labels
-        y_train_pred = torch.nn.Softmax()(logits)
-        y_train_pred = torch.argmax(y_train_pred, dim=1)
-        y_train_pred += list(y_train_pred.cpu().detach().numpy())
+        s_logits = torch.nn.Softmax(dim=1)(logits)
+        s_logits = torch.argmax(s_logits, dim=1)
+        y_train_pred += list(s_logits.cpu().detach().numpy())
     
 
     # Compute Average Train Loss
@@ -223,9 +223,9 @@ for epoch in range(EPOCHS):
             y_val_true += list(labels.cpu().detach().numpy())
             
             # Apply Softmax on Logits and get the argmax to get the predicted labels
-            y_val_pred = torch.nn.Softmax()(logits)
-            y_val_pred = torch.argmax(y_val_pred, dim=1)
-            y_val_pred += list(y_val_pred.cpu().detach().numpy())
+            s_logits = torch.nn.Softmax(dim=1)(logits)
+            s_logits = torch.argmax(s_logits, dim=1)
+            y_val_pred += list(s_logits.cpu().detach().numpy())
         
 
         # Compute Average Train Loss
