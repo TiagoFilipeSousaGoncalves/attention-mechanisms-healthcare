@@ -44,10 +44,11 @@ def map_images_and_labels(dir):
             dtype=str
         )
 
-        print(f"_label: {_label}")
+        # Debug print
+        # print(f"_label: {_label}")
         
         # Append to the Numpy Array
-        imgs_labels[idx, 1] = _label[0]
+        imgs_labels[idx, 1] = _label
 
         # Debug print
         print(f"Image file: {imgs_labels[idx, 0]} | Label: {imgs_labels[idx, 1]}")
