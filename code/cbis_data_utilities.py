@@ -89,6 +89,7 @@ class TorchDatasetFromNumpyArray(Dataset):
         """
         
         # Init variables
+        self.base_data_path = base_data_path
         imgs_labels, self.labels_dict, self.nr_classes = map_images_and_labels(dir=base_data_path)
         self.images_paths, self.images_labels = imgs_labels[:, 0], imgs_labels[:, 1]
         self.transform = transform
@@ -111,7 +112,7 @@ class TorchDatasetFromNumpyArray(Dataset):
 
         # Get images
         img_name = self.images_paths[idx]
-        image = Image.open(img_name)
+        image = Image.open(os.path.join(self.base_data_path, img_name))
 
         # Get labels
         label = self.labels_dict[self.images_labels[idx]]
