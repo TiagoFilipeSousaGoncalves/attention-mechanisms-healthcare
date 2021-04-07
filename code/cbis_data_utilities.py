@@ -58,9 +58,19 @@ def map_images_and_labels(dir):
 
         # Update index
         idx += 1
+    
+
+    # Create labels dictionary to map strings into numbers
+    _labels_unique,  nr_classes = np.unique(imgs_labels[:, 1], return_counts=True)
+
+    # Create labels dictionary
+    labels_dict = dict()
+    
+    for idx, _label in enumerate(_labels_unique):
+        labels_dict[_label] = idx
 
 
-    return imgs_labels
+    return imgs_labels, labels_dict, nr_classes
 
 
 
@@ -76,7 +86,7 @@ class TorchDatasetFromNumpyArray(Dataset):
         """
         
         # Init variables
-        imgs_labels = map_images_and_labels(dir=base_data_path)
+        imgs_labels, self.labels_dict, self.nr_classes = map_images_and_labels(dir=base_data_path)
         self.images_paths, self.images_labels = imgs_labels[:, 0], imgs_labels[:, 1]
         self.transform = transform
 
@@ -101,7 +111,7 @@ class TorchDatasetFromNumpyArray(Dataset):
         image = Image.open(img_name)
 
         # Get labels
-        label = self.images_labels[idx]
+        label = self.labels_dict[self.images_labels[idx]]
 
         # Apply transformation
         if self.transform:
@@ -113,5 +123,7 @@ class TorchDatasetFromNumpyArray(Dataset):
 
 
 # Test
-a = map_images_and_labels(dir=train_dir)
-print(f"{np.unique(a[:, 1])}")
+a, b, c = map_images_and_labels(dir=train_dir)
+print(f"{a}")
+print(f"{b}")
+print(f"{c}")
