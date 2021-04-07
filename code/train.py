@@ -14,8 +14,8 @@ import torchvision
 
 
 # Project Imports
-from .model_utilities import DenseNet121
-from .cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArray
+from model_utilities import DenseNet121
+from cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArray
 
 
 # Directories
