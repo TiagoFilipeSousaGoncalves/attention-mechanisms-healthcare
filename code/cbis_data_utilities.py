@@ -1,9 +1,11 @@
 # Imports
 import numpy as np
 import os
-import _pickle as cPickle
-from numpy.core.fromnumeric import shape
-import pandas as pd
+from PIL import Image
+
+# PyTorch Imports
+import torch
+from torch.utils.data import Dataset
 
 
 # Data Directories
@@ -14,7 +16,7 @@ test_dir = os.path.join(data_dir, "test")
 
 
 
-# Function: Get images and labels
+# Function: Get images and labels from directory files
 def map_images_and_labels(dir):
     # Images
     dir_files = os.listdir(dir)
@@ -32,7 +34,7 @@ def map_images_and_labels(dir):
     idx = 0
     for image, label in zip(dir_imgs, dir_labels_txt):
         # Debug print
-        print(f"Image file: {image} | Label file: {label}")
+        # print(f"Image file: {image} | Label file: {label}")
 
         # Append image (Column 0)
         imgs_labels[idx, 0] = image
@@ -51,7 +53,7 @@ def map_images_and_labels(dir):
         imgs_labels[idx, 1] = _label
 
         # Debug print
-        print(f"Image file: {imgs_labels[idx, 0]} | Label: {imgs_labels[idx, 1]}")
+        # print(f"Image file: {imgs_labels[idx, 0]} | Label: {imgs_labels[idx, 1]}")
 
 
         # Update index
@@ -61,6 +63,55 @@ def map_images_and_labels(dir):
     return imgs_labels
 
 
-# Test function
+
+# Create a Dataset Class
+class TorchDatasetFromNumpyArray(Dataset):
+    def __init__(self, base_data_path, transform=None):
+        """
+        Args:
+            base_data_path (string): Data directory.
+            pickle_path (string): Path for pickle with annotations.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        
+        # Init variables
+        imgs_labels = map_images_and_labels(dir=base_data_path)
+        self.images_paths, self.images_labels = imgs_labels[:, 0], imgs_labels[:, 1]
+        self.transform = transform
+
+
+        return 
+
+
+    # Method: __len__
+    def __len__(self):
+        return len(self.images_paths)
+
+
+
+    # Method: __getitem__
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        
+
+        # Get images
+        img_name = self.images_paths[idx]
+        image = Image.open(img_name)
+
+        # Get labels
+        label = self.images_labels[idx]
+
+        # Apply transformation
+        if self.transform:
+            image = self.transform(image)
+
+
+        return image, label
+
+
+
+# Test
 a = map_images_and_labels(dir=train_dir)
-print(a.shape)
+print(f"{np.unique(a[:, 1])}")
