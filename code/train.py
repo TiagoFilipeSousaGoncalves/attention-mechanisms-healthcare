@@ -52,6 +52,9 @@ WIDTH = 224
 # Y dimensions
 _, _, NR_CLASSES = map_images_and_labels(dir=train_dir)
 
+# TODO: Review
+# If we use Sigmoid activation
+NR_CLASSES -= 1
 
 # Model
 if MODEL_NAME == 'DenseNet121':
