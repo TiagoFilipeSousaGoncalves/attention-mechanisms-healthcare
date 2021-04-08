@@ -98,6 +98,9 @@ BATCH_SIZE = 32
 # Transforms
 train_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((224, 224)),
+    # Data Augmentation
+    torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
+    torchvision.transforms.RandomHorizontalFlip(p=0.5),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(mean=MEAN, std=STD)
 ])
@@ -294,7 +297,7 @@ for epoch in range(EPOCHS):
             print("Saving model...")
 
             # Save checkpoint
-            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baseline_cbis.pt")
+            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_daugm_cbis.pt")
             torch.save(model.state_dict(), model_path)
 
             print(f"Successfully saved at: {model_path}")
