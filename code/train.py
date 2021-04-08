@@ -159,7 +159,7 @@ for epoch in range(EPOCHS):
         # loss = LOSS(logits, labels)
 
         # Using BCE w/ Sigmoid
-        loss = LOSS(logits.reshape(-1), labels)
+        loss = LOSS(logits.reshape(-1).float(), labels)
         
         # Backward pass: compute gradient of the loss with respect to model parameters
         loss.backward()
@@ -240,7 +240,7 @@ for epoch in range(EPOCHS):
             # loss = LOSS(logits, labels)
 
             # Using BCE w/ Sigmoid
-            loss = LOSS(logits.reshape(-1), labels)
+            loss = LOSS(logits.reshape(-1).float(), labels)
             
             # Update batch losses
             run_val_loss += (loss.item() * images.size(0))
