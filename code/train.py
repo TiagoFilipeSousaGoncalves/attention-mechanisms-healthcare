@@ -20,7 +20,7 @@ np.random.seed(random_seed)
 
 
 # Project Imports
-from model_utilities import DenseNet121
+from model_utilities import DenseNet121, ResNet50
 from cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArray
 
 
@@ -40,7 +40,7 @@ if os.path.isdir(weights_dir) == False:
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 # Choose Model Name
-MODEL_NAME = 'DenseNet121'
+MODEL_NAME = 'ResNet50'
 
 
 # Data
@@ -64,6 +64,19 @@ if MODEL_NAME == 'DenseNet121':
 
     # Model instance
     model = DenseNet121(
+        channels=CHANNELS,
+        height=HEIGHT,
+        width=WIDTH,
+        nr_classes=NR_CLASSES
+    )
+
+elif MODEL_NAME == 'ResNet50':
+    # Mean and STD to Normalize
+    MEAN = [0.485, 0.456, 0.406]
+    STD = [0.229, 0.224, 0.225]
+
+    # Model instance
+    model = ResNet50(
         channels=CHANNELS,
         height=HEIGHT,
         width=WIDTH,
@@ -281,9 +294,10 @@ for epoch in range(EPOCHS):
             print("Saving model...")
 
             # Save checkpoint
-            torch.save(model.state_dict(), os.path.join(weights_dir, "densenet121_baseline_cbis.pt"))
+            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baseline_cbis.pt")
+            torch.save(model.state_dict(), model_path)
 
-            print("Successfully saved.")
+            print(f"Successfully saved at: {model_path}")
 
 
 # Finish statement
