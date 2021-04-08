@@ -5,7 +5,7 @@ import os
 from PIL import Image
 
 # Sklearn Import
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 # PyTorch Imports
 import torch
@@ -70,7 +70,8 @@ if MODEL_NAME == 'DenseNet121':
 
 # Hyper-parameters
 EPOCHS = 300
-LOSS = torch.nn.CrossEntropyLoss()
+# LOSS = torch.nn.CrossEntropyLoss()
+LOSS = torch.nn.BCELoss()
 LEARNING_RATE = 1e-4
 OPTIMISER = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 BATCH_SIZE = 32
@@ -165,20 +166,28 @@ for epoch in range(EPOCHS):
         # Concatenate lists
         y_train_true += list(labels.cpu().detach().numpy())
         
+        # Using Softmax
         # Apply Softmax on Logits and get the argmax to get the predicted labels
-        s_logits = torch.nn.Softmax(dim=1)(logits)
-        s_logits = torch.argmax(s_logits, dim=1)
-        y_train_pred += list(s_logits.cpu().detach().numpy())
+        # s_logits = torch.nn.Softmax(dim=1)(logits)
+        # s_logits = torch.argmax(s_logits, dim=1)
+        # y_train_pred += list(s_logits.cpu().detach().numpy())
+
+        # Using Sigmoid Activation (we apply a threshold of 0.5 in probabilities)
+        y_train_pred += list(logits.cpu().detach().numpy())
+        y_train_pred = [1 if i >= 0.5 else 0 for i in y_train_pred]
     
 
     # Compute Average Train Loss
     avg_train_loss = run_train_loss/len(train_loader.dataset)
 
-    # Compute Training Accuracy
+    # Compute Train Metrics
     train_acc = accuracy_score(y_true=y_train_true, y_pred=y_train_pred)
+    train_recall = recall_score(y_true=y_train_true, y_pred=y_train_pred)
+    train_precision = precision_score(y_true=y_train_true, y_pred=y_train_pred)
+    train_f1 = f1_score(y_true=y_train_true, y_pred=y_train_pred)
 
     # Print Statistics
-    print(f"Train loss: {avg_train_loss} \tTrain accuracy: {train_acc}")
+    print(f"Train Loss: {avg_train_loss}\tTrain Accuracy: {train_acc}\tTrain Recall: {train_recall}\tTrain Precision: {train_precision}\tTrain F1-Score: {train_f1}")
 
     # Update Variables
     # Min Training Loss
@@ -228,10 +237,16 @@ for epoch in range(EPOCHS):
             # Concatenate lists
             y_val_true += list(labels.cpu().detach().numpy())
             
+            # Using Softmax Activation
             # Apply Softmax on Logits and get the argmax to get the predicted labels
-            s_logits = torch.nn.Softmax(dim=1)(logits)
-            s_logits = torch.argmax(s_logits, dim=1)
-            y_val_pred += list(s_logits.cpu().detach().numpy())
+            # s_logits = torch.nn.Softmax(dim=1)(logits)
+            # s_logits = torch.argmax(s_logits, dim=1)
+            # y_val_pred += list(s_logits.cpu().detach().numpy())
+
+            # Using Sigmoid Activation (we apply a threshold of 0.5 in probabilities)
+            y_val_pred += list(logits.cpu().detach().numpy())
+            y_val_pred = [1 if i >= 0.5 else 0 for i in y_val_pred]
+
         
 
         # Compute Average Train Loss
@@ -239,9 +254,12 @@ for epoch in range(EPOCHS):
 
         # Compute Training Accuracy
         val_acc = accuracy_score(y_true=y_val_true, y_pred=y_val_pred)
+        val_recall = recall_score(y_true=y_val_true, y_pred=y_val_pred)
+        val_precision = precision_score(y_true=y_val_true, y_pred=y_val_pred)
+        val_f1 = f1_score(y_true=y_val_true, y_pred=y_val_pred)
 
         # Print Statistics
-        print(f"Validation loss: {avg_val_loss} \tValidation accuracy: {val_acc}")
+        print(f"Validation Loss: {avg_val_loss}\tValidation Accuracy: {val_acc}\tValidation Recall: {val_recall}\tValidation Precision: {val_precision}\tValidation F1-Score: {val_f1}")
 
         # Update Variables
         # Min validation loss and save if validation loss decreases
