@@ -40,7 +40,7 @@ if os.path.isdir(weights_dir) == False:
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 # Choose Model Name
-MODEL_NAME = 'ResNet50'
+MODEL_NAME = 'DenseNet121'
 
 
 # Data
