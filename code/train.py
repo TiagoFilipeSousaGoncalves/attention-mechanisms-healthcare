@@ -20,7 +20,7 @@ np.random.seed(random_seed)
 
 
 # Project Imports
-from model_utilities import DenseNet121, ResNet50
+from model_utilities import DenseNet121, ResNet50, VGG16
 from cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArray
 
 
@@ -39,8 +39,14 @@ if os.path.isdir(weights_dir) == False:
 # Choose GPU
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
+
 # Choose Model Name
-MODEL_NAME = 'DenseNet121'
+MODEL_NAME = 'VGG16'
+
+
+# Mean and STD to Normalize
+MEAN = [0.485, 0.456, 0.406]
+STD = [0.229, 0.224, 0.225]
 
 
 # Data
@@ -58,10 +64,6 @@ NR_CLASSES -= 1
 
 # Model
 if MODEL_NAME == 'DenseNet121':
-    # Mean and STD to Normalize
-    MEAN = [0.485, 0.456, 0.406]
-    STD = [0.229, 0.224, 0.225]
-
     # Model instance
     model = DenseNet121(
         channels=CHANNELS,
@@ -71,16 +73,21 @@ if MODEL_NAME == 'DenseNet121':
     )
 
 elif MODEL_NAME == 'ResNet50':
-    # Mean and STD to Normalize
-    MEAN = [0.485, 0.456, 0.406]
-    STD = [0.229, 0.224, 0.225]
-
     # Model instance
     model = ResNet50(
-        channels=CHANNELS,
-        height=HEIGHT,
-        width=WIDTH,
-        nr_classes=NR_CLASSES
+        channels = CHANNELS,
+        height = HEIGHT,
+        width = WIDTH,
+        nr_classes = NR_CLASSES
+    )
+
+elif MODEL_NAME == "VGG16":
+    # Model instance
+    model = VGG16(
+        channels = CHANNELS,
+        height = HEIGHT,
+        width = WIDTH,
+        nr_classes = NR_CLASSES
     )
 
 
