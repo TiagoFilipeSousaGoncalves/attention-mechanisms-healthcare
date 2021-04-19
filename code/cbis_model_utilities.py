@@ -39,7 +39,6 @@ class DenseNet121(torch.nn.Module):
         self.fc_sigmoid = torch.nn.Sigmoid()
 
 
-
         return
     
 
