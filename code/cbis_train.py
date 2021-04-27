@@ -20,7 +20,7 @@ np.random.seed(random_seed)
 
 
 # Project Imports
-from model_utilities import DenseNet121, ResNet50, VGG16
+from cbis_model_utilities import DenseNet121, ResNet50, VGG16
 from cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArray
 
 
