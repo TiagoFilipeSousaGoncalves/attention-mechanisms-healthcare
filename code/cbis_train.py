@@ -31,9 +31,15 @@ val_dir = os.path.join(data_dir, "val")
 test_dir = os.path.join(data_dir, "test")
 
 # Results and Weights
-weights_dir = os.path.join("results", "weights")
+weights_dir = os.path.join("results", "cbis", "weights")
 if os.path.isdir(weights_dir) == False:
     os.makedirs(weights_dir)
+
+
+# History Files Dire
+history_dir = os.path.join("results", "cbis", "history")
+if os.path.isdir(history_dir) == False:
+    os.makedirs(history_dir)
 
 
 # Choose GPU
@@ -106,8 +112,8 @@ BATCH_SIZE = 32
 train_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((224, 224)),
     # Data Augmentation
-    torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
-    torchvision.transforms.RandomHorizontalFlip(p=0.5),
+    # torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
+    # torchvision.transforms.RandomHorizontalFlip(p=0.5),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(mean=MEAN, std=STD)
 ])
@@ -139,6 +145,15 @@ val_loader = DataLoader(dataset=val_set, batch_size=BATCH_SIZE, shuffle=True)
 # Initialise min_train and min_val loss trackers
 min_train_loss = np.inf
 min_val_loss = np.inf
+
+# Initialise losses arrays
+train_losses = np.zeros((EPOCHS, ))
+val_losses = np.zeros_like(train_losses)
+
+# Initialise metrics arrays
+train_metrics = np.zeros((EPOCHS, 4))
+val_metrics = np.zeros_like(train_metrics)
+
 
 # Go through the number of Epochs
 for epoch in range(EPOCHS):
@@ -219,11 +234,46 @@ for epoch in range(EPOCHS):
     # Print Statistics
     print(f"Train Loss: {avg_train_loss}\tTrain Accuracy: {train_acc}\tTrain Recall: {train_recall}\tTrain Precision: {train_precision}\tTrain F1-Score: {train_f1}")
 
+
+    # Append values to the arrays
+    # Train Loss
+    train_losses[epoch] = avg_train_loss
+    # Save it to directory
+    np.save(
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baseline_tr_losses.npy"),
+        arr=train_losses,
+        allow_pickle=True
+    )
+
+
+    # Train Metrics
+    # Acc
+    train_metrics[epoch, 0] = train_acc
+    # Recall
+    train_metrics[epoch, 1] = train_recall
+    # Precision
+    train_metrics[epoch, 2] = train_precision
+    # F1-Score
+    train_metrics[epoch, 3] = train_f1
+    # Save it to directory
+    np.save(
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baseline_tr_metrics.npy"),
+        arr=train_metrics,
+        allow_pickle=True
+    )
+
+
     # Update Variables
     # Min Training Loss
     if avg_train_loss < min_train_loss:
         print(f"Train loss decreased from {min_train_loss} to {avg_train_loss}.")
         min_train_loss = avg_train_loss
+
+        # Save checkpoint
+        model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baseline_tr_cbis.pt")
+        torch.save(model.state_dict(), model_path)
+
+        # print(f"Successfully saved at: {model_path}")
 
 
 
@@ -295,16 +345,43 @@ for epoch in range(EPOCHS):
         # Print Statistics
         print(f"Validation Loss: {avg_val_loss}\tValidation Accuracy: {val_acc}\tValidation Recall: {val_recall}\tValidation Precision: {val_precision}\tValidation F1-Score: {val_f1}")
 
+        # Append values to the arrays
+        # Train Loss
+        val_losses[epoch] = avg_val_loss
+        # Save it to directory
+        np.save(
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baseline_val_losses.npy"),
+            arr=val_losses,
+            allow_pickle=True
+        )
+
+
+        # Train Metrics
+        # Acc
+        val_metrics[epoch, 0] = val_acc
+        # Recall
+        val_metrics[epoch, 1] = val_recall
+        # Precision
+        val_metrics[epoch, 2] = val_precision
+        # F1-Score
+        val_metrics[epoch, 3] = val_f1
+        # Save it to directory
+        np.save(
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baseline_val_metrics.npy"),
+            arr=val_metrics,
+            allow_pickle=True
+        )
+
         # Update Variables
         # Min validation loss and save if validation loss decreases
         if avg_val_loss < min_val_loss:
             print(f"Validation loss decreased from {min_val_loss} to {avg_val_loss}.")
             min_val_loss = avg_val_loss
 
-            print("Saving model...")
+            print("Saving best model on validation...")
 
             # Save checkpoint
-            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_daugm_cbis.pt")
+            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baseline_val_cbis.pt")
             torch.save(model.state_dict(), model_path)
 
             print(f"Successfully saved at: {model_path}")
