@@ -134,3 +134,6 @@ dmypy.json
 # PyTorch
 .pt
 *.pt
+
+# System
+*.sh
