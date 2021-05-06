@@ -20,7 +20,7 @@ np.random.seed(random_seed)
 
 
 # Project Imports
-from cbis_model_utilities import DenseNet121, ResNet50, VGG16
+from cbis_model_utilities import DenseNet121, ResNet50, VGG16, MultiLevelDAM
 from cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArray
 
 
@@ -47,7 +47,8 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
 # Choose Model Name
-MODEL_NAME = 'VGG16'
+MODEL_NAME = 'DenseNet121'
+USE_ATTENTION = True
 
 
 # Mean and STD to Normalize
@@ -70,31 +71,49 @@ NR_CLASSES -= 1
 
 # Model
 if MODEL_NAME == 'DenseNet121':
-    # Model instance
-    model = DenseNet121(
-        channels=CHANNELS,
-        height=HEIGHT,
-        width=WIDTH,
-        nr_classes=NR_CLASSES
-    )
+    if USE_ATTENTION:
+        model =  MultiLevelDAM(
+            channels=CHANNELS,
+            height=HEIGHT,
+            width=WIDTH,
+            nr_classes=NR_CLASSES,
+            backbone=MODEL_NAME.lower()
+        )
+
+    else:
+        # Model instance
+        model = DenseNet121(
+            channels=CHANNELS,
+            height=HEIGHT,
+            width=WIDTH,
+            nr_classes=NR_CLASSES
+        )
 
 elif MODEL_NAME == 'ResNet50':
-    # Model instance
-    model = ResNet50(
-        channels = CHANNELS,
-        height = HEIGHT,
-        width = WIDTH,
-        nr_classes = NR_CLASSES
-    )
+    if USE_ATTENTION:
+        pass 
+
+    else:
+        # Model instance
+        model = ResNet50(
+            channels = CHANNELS,
+            height = HEIGHT,
+            width = WIDTH,
+            nr_classes = NR_CLASSES
+        )
 
 elif MODEL_NAME == "VGG16":
-    # Model instance
-    model = VGG16(
-        channels = CHANNELS,
-        height = HEIGHT,
-        width = WIDTH,
-        nr_classes = NR_CLASSES
-    )
+    if USE_ATTENTION:
+        pass 
+
+    else:
+        # Model instance
+        model = VGG16(
+            channels = CHANNELS,
+            height = HEIGHT,
+            width = WIDTH,
+            nr_classes = NR_CLASSES
+        )
 
 
 # Hyper-parameters
@@ -112,8 +131,8 @@ BATCH_SIZE = 32
 train_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((224, 224)),
     # Data Augmentation
-    torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
-    torchvision.transforms.RandomHorizontalFlip(p=0.5),
+    # torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
+    # torchvision.transforms.RandomHorizontalFlip(p=0.5),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(mean=MEAN, std=STD)
 ])
@@ -240,7 +259,7 @@ for epoch in range(EPOCHS):
     train_losses[epoch] = avg_train_loss
     # Save it to directory
     np.save(
-        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_tr_losses.npy"),
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_tr_losses.npy"),
         arr=train_losses,
         allow_pickle=True
     )
@@ -257,7 +276,7 @@ for epoch in range(EPOCHS):
     train_metrics[epoch, 3] = train_f1
     # Save it to directory
     np.save(
-        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_tr_metrics.npy"),
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_tr_metrics.npy"),
         arr=train_metrics,
         allow_pickle=True
     )
@@ -270,7 +289,7 @@ for epoch in range(EPOCHS):
         min_train_loss = avg_train_loss
 
         # Save checkpoint
-        model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baselinedaug_tr_cbis.pt")
+        model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldam_tr_cbis.pt")
         torch.save(model.state_dict(), model_path)
 
         # print(f"Successfully saved at: {model_path}")
@@ -350,7 +369,7 @@ for epoch in range(EPOCHS):
         val_losses[epoch] = avg_val_loss
         # Save it to directory
         np.save(
-            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_val_losses.npy"),
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_val_losses.npy"),
             arr=val_losses,
             allow_pickle=True
         )
@@ -367,7 +386,7 @@ for epoch in range(EPOCHS):
         val_metrics[epoch, 3] = val_f1
         # Save it to directory
         np.save(
-            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_val_metrics.npy"),
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_val_metrics.npy"),
             arr=val_metrics,
             allow_pickle=True
         )
@@ -381,7 +400,7 @@ for epoch in range(EPOCHS):
             print("Saving best model on validation...")
 
             # Save checkpoint
-            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baselinedaug_val_cbis.pt")
+            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldam_val_cbis.pt")
             torch.save(model.state_dict(), model_path)
 
             print(f"Successfully saved at: {model_path}")
