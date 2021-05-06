@@ -1,4 +1,5 @@
 # Imports
+from code.cbis_train import USE_ATTENTION
 import numpy as np
 import _pickle as cPickle
 import os
@@ -20,7 +21,7 @@ np.random.seed(random_seed)
 
 
 # Project Imports
-from chexpert_model_utilities import DenseNet121, ResNet50, VGG16
+from chexpert_model_utilities import DenseNet121, ResNet50, VGG16, MultiLevelDAM
 from chexpert_data_utilities import imgs_and_labels_from_pickle, TorchDatasetFromPickle
 
 
@@ -48,6 +49,7 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 # Choose Model Name
 MODEL_NAME = "ResNet50"
+USE_ATTENTION = True
 
 
 # Mean and STD to Normalize
@@ -69,31 +71,49 @@ NR_CLASSES = 1
 
 # Model
 if MODEL_NAME == 'DenseNet121':
-    # Model instance
-    model = DenseNet121(
-        channels=CHANNELS,
-        height=HEIGHT,
-        width=WIDTH,
-        nr_classes=NR_CLASSES
-    )
+    if USE_ATTENTION:
+        model =  MultiLevelDAM(
+            channels=CHANNELS,
+            height=HEIGHT,
+            width=WIDTH,
+            nr_classes=NR_CLASSES,
+            backbone=MODEL_NAME.lower()
+        )
+
+    else:
+        # Model instance
+        model = DenseNet121(
+            channels=CHANNELS,
+            height=HEIGHT,
+            width=WIDTH,
+            nr_classes=NR_CLASSES
+        )
 
 elif MODEL_NAME == 'ResNet50':
-    # Model instance
-    model = ResNet50(
-        channels = CHANNELS,
-        height = HEIGHT,
-        width = WIDTH,
-        nr_classes = NR_CLASSES
-    )
+    if USE_ATTENTION:
+        pass 
+
+    else:
+        # Model instance
+        model = ResNet50(
+            channels = CHANNELS,
+            height = HEIGHT,
+            width = WIDTH,
+            nr_classes = NR_CLASSES
+        )
 
 elif MODEL_NAME == "VGG16":
-    # Model instance
-    model = VGG16(
-        channels = CHANNELS,
-        height = HEIGHT,
-        width = WIDTH,
-        nr_classes = NR_CLASSES
-    )
+    if USE_ATTENTION:
+        pass 
+
+    else:
+        # Model instance
+        model = VGG16(
+            channels = CHANNELS,
+            height = HEIGHT,
+            width = WIDTH,
+            nr_classes = NR_CLASSES
+        )
 
 
 # Hyper-parameters
