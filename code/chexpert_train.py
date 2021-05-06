@@ -1,5 +1,4 @@
 # Imports
-from code.cbis_train import USE_ATTENTION
 import numpy as np
 import _pickle as cPickle
 import os
@@ -48,7 +47,7 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
 # Choose Model Name
-MODEL_NAME = "ResNet50"
+MODEL_NAME = "DenseNet121"
 USE_ATTENTION = True
 
 
@@ -131,8 +130,8 @@ BATCH_SIZE = 32
 train_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((224, 224)),
     # Data Augmentation
-    torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
-    torchvision.transforms.RandomHorizontalFlip(p=0.5),
+    # torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
+    # torchvision.transforms.RandomHorizontalFlip(p=0.5),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(mean=MEAN, std=STD)
 ])
