@@ -267,7 +267,7 @@ for epoch in range(EPOCHS):
     train_losses[epoch] = avg_train_loss
     # Save it to directory
     np.save(
-        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_tr_losses.npy"),
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_tr_losses.npy"),
         arr=train_losses,
         allow_pickle=True
     )
@@ -284,7 +284,7 @@ for epoch in range(EPOCHS):
     train_metrics[epoch, 3] = train_f1
     # Save it to directory
     np.save(
-        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_tr_metrics.npy"),
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_tr_metrics.npy"),
         arr=train_metrics,
         allow_pickle=True
     )
@@ -297,7 +297,7 @@ for epoch in range(EPOCHS):
         min_train_loss = avg_train_loss
 
         # Save checkpoint
-        model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baselinedaug_tr_chexpert.pt")
+        model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldam_tr_chexpert.pt")
         torch.save(model.state_dict(), model_path)
 
         # print(f"Successfully saved at: {model_path}")
@@ -378,7 +378,7 @@ for epoch in range(EPOCHS):
         val_losses[epoch] = avg_val_loss
         # Save it to directory
         np.save(
-            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_val_losses.npy"),
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_val_losses.npy"),
             arr=val_losses,
             allow_pickle=True
         )
@@ -395,7 +395,7 @@ for epoch in range(EPOCHS):
         val_metrics[epoch, 3] = val_f1
         # Save it to directory
         np.save(
-            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_baselinedaug_val_metrics.npy"),
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_val_metrics.npy"),
             arr=val_metrics,
             allow_pickle=True
         )
@@ -409,7 +409,7 @@ for epoch in range(EPOCHS):
             print("Saving best model on validation...")
 
             # Save checkpoint
-            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_baselinedaug_val_chexpert.pt")
+            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldam_val_chexpert.pt")
             torch.save(model.state_dict(), model_path)
 
             print(f"Successfully saved at: {model_path}")
