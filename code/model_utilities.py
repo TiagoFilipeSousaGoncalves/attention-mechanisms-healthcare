@@ -7,6 +7,7 @@ import os
 # PyTorch Imports
 import torch
 import torchvision
+import torchsummary
 
 
 # Create PyTorch Models
@@ -283,13 +284,36 @@ class MultiLevelDAM(torch.nn.Module):
         self.nr_classes = nr_classes
 
         # Get the backbone
+        # DenseNet121
         if backbone.lower() == "densenet121":
-            self.backbone_name = backbone
+            self.backbone_name = backbone.lower()
             self.backbone = torch.hub.load('pytorch/vision:v0.6.0', 'densenet121', pretrained=True)
+            self.att_channels = 1024
+            self.att_height = 7
+            self.att_width = 7
+        
+        # VGG-16
+        elif backbone.lower() == "vgg16":
+            self.backbone_name = backbone.lower()
+            self.backbone = torchvision.models.vgg16(pretrained=True).features
+            self.att_channels = 512
+            self.att_height = 7
+            self.att_width = 7
+            
+        
+        # ResNet-50
+        elif backbone.lower() == "resnet50":
+            self.backbone_name = backbone.lower()
+            self.backbone = torchvision.models.resnet50(pretrained=True)
+            self.backbone = torch.nn.Sequential(*(list(self.backbone.children())[:-2]))
+            self.att_channels = 2048
+            self.att_height = 7
+            self.att_width = 7
+            
 
 
         # Models Layers
-        # Backbone features
+        # DenseNet121
         if self.backbone_name == "densenet121":
             # DenseBlock2; shape(batch, 512, 28, 28)
             self.denseblock2 = torch.nn.Sequential(
@@ -336,6 +360,42 @@ class MultiLevelDAM(torch.nn.Module):
             
             # DenseBlock 4; shape(batch, 1024, 7, 7) (it is the same as the features block)
             self.denseblock4 = self.backbone.features
+        
+
+        # VGG-16
+        elif self.backbone_name == "vgg16":
+            # Block-1; shape (256, 28, 28)
+            self.vggblock1 = torch.nn.Sequential(
+                *list(self.backbone.children())[0:17]
+            )
+
+            # Block-2; shape (512, 14, 14)
+            self.vggblock2 = torch.nn.Sequential(
+                *list(self.backbone.children())[0:24]
+            )
+
+            # Block-3; shape(512, 7, 7)
+            self.vggblock3 = self.backbone
+
+
+
+        # ResNet-50
+        elif self.backbone_name == "resnet50":
+            # Block-1; shape (512, 28, 28)
+            self.resnetblock1 = torch.nn.Sequential(
+                *(list(self.backbone.children())[0:6])
+            )
+
+            # Block-2; shape (1024, 14, 14)
+            self.resnetblock2 = torch.nn.Sequential(
+                *(list(self.backbone.children())[0:7])
+            )
+
+
+            # Block-3; shape()
+            self.resnetblock3 = self.backbone
+
+
 
         # Average Pooling Layers
         # No. 1
@@ -345,27 +405,27 @@ class MultiLevelDAM(torch.nn.Module):
         self.avg_pool2d_2 = torch.nn.AvgPool2d(kernel_size=(2, 2))
 
         # Batch Norm and ReLU No. 1
-        self.batch_norm1 = torch.nn.BatchNorm2d(num_features=1024, eps=1e-6, momentum=0.1)
+        self.batch_norm1 = torch.nn.BatchNorm2d(num_features=self.att_channels, eps=1e-6, momentum=0.1)
         self.relu1 = torch.nn.ReLU()
 
         # Batch Norm and ReLU No. 2
-        self.batch_norm2 = torch.nn.BatchNorm2d(num_features=1024, eps=1e-6, momentum=0.1)
+        self.batch_norm2 = torch.nn.BatchNorm2d(num_features=self.att_channels, eps=1e-6, momentum=0.1)
         self.relu2 = torch.nn.ReLU()
 
 
         # PAM and CAM Modules
         # PAM
-        self.pam = PAM_Module()
+        self.pam = PAM_Module(channels=self.att_channels, height=self.att_height, width=self.att_width)
         # CAM
-        self.cam = CAM_Module()
+        self.cam = CAM_Module(channels=self.att_channels, height=self.att_height, width=self.att_width)
 
 
         # FC Layers
-        self.fc1 = torch.nn.Linear(in_features=(1024 * 7 * 7), out_features=1024)
+        self.fc1 = torch.nn.Linear(in_features=(self.att_channels * self.att_height * self.att_width), out_features=self.att_channels)
         self.fc_relu1 = torch.nn.ReLU()
-        self.fc2 = torch.nn.Linear(in_features=1024, out_features=512)
+        self.fc2 = torch.nn.Linear(in_features=self.att_channels, out_features=int(self.att_channels/2))
         self.fc_relu2 = torch.nn.ReLU()
-        self.fc3 = torch.nn.Linear(in_features=512, out_features=self.nr_classes)
+        self.fc3 = torch.nn.Linear(in_features=int(self.att_channels/2), out_features=self.nr_classes)
         self.fc_sigmoid = torch.nn.Sigmoid()
 
         # Dropout Layers
@@ -377,6 +437,7 @@ class MultiLevelDAM(torch.nn.Module):
 
 
     def forward(self, inputs):
+        # DenseNet121
         if self.backbone_name == "densenet121":
             # k1
             # x1 = vgg_model.get_layer('conv4_3').output
@@ -457,6 +518,145 @@ class MultiLevelDAM(torch.nn.Module):
             # model = Model(vgg_model.input, out)
             outputs = self.fc3(outputs)
             outputs = self.fc_sigmoid(outputs)
+        
+
+        # VGG-16
+        elif self.backbone_name == "vgg16":
+            # k1 - Block 2
+            k1 = self.vggblock2(inputs)
+            # print(f"k1 size: {k1.size()}")
+            k1 = self.avg_pool2d_2(k1)
+            # print(f"k1 size: {k1.size()}")
+
+            # q1 - Block 1
+            q1 = self.vggblock1(inputs)
+            # print(f"q1 size: {q1.size()}")
+            q1 = self.avg_pool2d_1(q1)
+            q1 = torch.cat((q1, q1), dim=1)
+            # print(f"q1 size: {q1.size()}")
+
+
+            # v1 - Block 3
+            v1 = self.vggblock3(inputs)
+            # print(f"v1 size: {v1.size()}")
+
+
+
+            # Backbone features
+            back_fts = self.backbone(inputs)
+            # print(f"backbone fts size: {back_fts.size()}")
+        
+
+            # Attention Modules
+            # PAM
+            pam_out = self.pam(v1, q1, k1)
+            pam_out = self.relu1(pam_out)
+            pam_out = self.batch_norm1(pam_out)
             
             
-            return outputs
+            # CAM
+            cam_out = self.cam(back_fts, back_fts, back_fts)
+            cam_out = self.relu2(cam_out)
+            cam_out = self.batch_norm2(cam_out)
+
+            # Perform the average of the layers
+            att_avg = torch.add(pam_out, cam_out)
+            att_avg = att_avg / 2
+
+            # Flatten
+            att_avg = torch.reshape(att_avg, (att_avg.size(0), -1))
+
+            # FC Layer 1
+            outputs = self.fc1(att_avg)
+            outputs = self.fc_relu1(outputs)
+            outputs = self.drop1(outputs)
+
+            # FC Layer 2
+            outputs = self.fc2(outputs)
+            outputs = self.fc_relu2(outputs)
+            outputs = self.drop2(outputs)
+            
+            
+            # Last FC Layer
+            outputs = self.fc3(outputs)
+            outputs = self.fc_sigmoid(outputs)
+        
+
+        # ResNet-50
+        elif self.backbone_name == "resnet50":
+            # k1 - Block 2
+            k1 = self.resnetblock2(inputs)
+            # print(f"k1 size: {k1.size()}")
+            k1 = self.avg_pool2d_2(k1)
+            k1 = torch.cat((k1, k1), dim=1)
+            # print(f"k1 size: {k1.size()}")
+
+
+            # q1 - Block 1
+            q1 = self.resnetblock1(inputs)
+            # print(f"q1 size: {q1.size()}")
+            q1 = self.avg_pool2d_1(q1)
+            q1 = torch.cat((q1, q1, q1, q1), dim=1)
+            # print(f"q1 size: {q1.size()}")
+
+
+            # v1 - Block 3
+            v1 = self.resnetblock3(inputs)
+            # print(f"v1 size: {v1.size()}")
+
+
+
+            # Backbone features
+            back_fts = self.backbone(inputs)
+            # print(f"backbone fts size: {back_fts.size()}")
+        
+
+            # Attention Modules
+            # PAM
+            pam_out = self.pam(v1, q1, k1)
+            pam_out = self.relu1(pam_out)
+            pam_out = self.batch_norm1(pam_out)
+            
+            
+            # CAM
+            cam_out = self.cam(back_fts, back_fts, back_fts)
+            cam_out = self.relu2(cam_out)
+            cam_out = self.batch_norm2(cam_out)
+
+            # Perform the average of the layers
+            att_avg = torch.add(pam_out, cam_out)
+            att_avg = att_avg / 2
+
+            # Flatten
+            att_avg = torch.reshape(att_avg, (att_avg.size(0), -1))
+
+            # FC Layer 1
+            outputs = self.fc1(att_avg)
+            outputs = self.fc_relu1(outputs)
+            outputs = self.drop1(outputs)
+
+            # FC Layer 2
+            outputs = self.fc2(outputs)
+            outputs = self.fc_relu2(outputs)
+            outputs = self.drop2(outputs)
+            
+            
+            # Last FC Layer
+            outputs = self.fc3(outputs)
+            outputs = self.fc_sigmoid(outputs)
+        
+
+        return outputs
+
+
+
+# TODO: Erase uppon review
+# Tests
+# mldam = MultiLevelDAM(backbone="resnet50")
+# print(mldam)
+# torchsummary.summary(mldam, (3, 224, 224))
+# m = torchvision.models.resnet50(pretrained=True)
+# m = torch.nn.Sequential(*(list(m.children())[:-2]))
+# torchsummary.summary(m, (3, 224, 224))
+# m = torch.nn.Sequential(*(list(m.children())[0:7]))
+# torchsummary.summary(m, (3, 224, 224))
