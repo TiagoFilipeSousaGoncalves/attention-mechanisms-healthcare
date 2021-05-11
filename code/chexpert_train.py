@@ -20,7 +20,7 @@ np.random.seed(random_seed)
 
 
 # Project Imports
-from chexpert_model_utilities import DenseNet121, ResNet50, VGG16, MultiLevelDAM
+from model_utilities import DenseNet121, ResNet50, VGG16, MultiLevelDAM
 from chexpert_data_utilities import imgs_and_labels_from_pickle, TorchDatasetFromPickle
 
 
