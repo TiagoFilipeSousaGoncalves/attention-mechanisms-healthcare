@@ -69,7 +69,7 @@ _, _, NR_CLASSES = map_images_and_labels(dir=train_dir)
 # If we use Sigmoid activation
 NR_CLASSES -= 1
 
-# Model
+# DenseNet121
 if MODEL_NAME == 'DenseNet121':
     if USE_ATTENTION:
         model =  MultiLevelDAM(
@@ -81,7 +81,6 @@ if MODEL_NAME == 'DenseNet121':
         )
 
     else:
-        # Model instance
         model = DenseNet121(
             channels=CHANNELS,
             height=HEIGHT,
@@ -89,12 +88,19 @@ if MODEL_NAME == 'DenseNet121':
             nr_classes=NR_CLASSES
         )
 
+
+# ResNet-50
 elif MODEL_NAME == 'ResNet50':
     if USE_ATTENTION:
-        pass 
+        model =  MultiLevelDAM(
+            channels=CHANNELS,
+            height=HEIGHT,
+            width=WIDTH,
+            nr_classes=NR_CLASSES,
+            backbone=MODEL_NAME.lower()
+        )
 
     else:
-        # Model instance
         model = ResNet50(
             channels = CHANNELS,
             height = HEIGHT,
@@ -102,12 +108,19 @@ elif MODEL_NAME == 'ResNet50':
             nr_classes = NR_CLASSES
         )
 
+
+# VGG-16
 elif MODEL_NAME == "VGG16":
     if USE_ATTENTION:
-        pass 
+        model =  MultiLevelDAM(
+            channels=CHANNELS,
+            height=HEIGHT,
+            width=WIDTH,
+            nr_classes=NR_CLASSES,
+            backbone=MODEL_NAME.lower()
+        ) 
 
     else:
-        # Model instance
         model = VGG16(
             channels = CHANNELS,
             height = HEIGHT,
