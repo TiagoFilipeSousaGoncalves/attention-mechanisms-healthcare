@@ -47,7 +47,7 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
 # Choose Model Name
-MODEL_NAME = 'VGG16'
+MODEL_NAME = 'ResNet50'
 USE_ATTENTION = True
 
 
