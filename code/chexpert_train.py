@@ -36,7 +36,7 @@ if os.path.isdir(weights_dir) == False:
     os.makedirs(weights_dir)
 
 
-# History Files Dire
+# History Files
 history_dir = os.path.join("results", "chexpert", "history")
 if os.path.isdir(history_dir) == False:
     os.makedirs(history_dir)
