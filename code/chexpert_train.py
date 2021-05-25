@@ -47,7 +47,7 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
 # Choose Model Name
-MODEL_NAME = "VGG16"
+MODEL_NAME = "ResNet50"
 USE_ATTENTION = True
 
 
@@ -133,7 +133,7 @@ EPOCHS = 300
 LOSS = torch.nn.BCELoss()
 LEARNING_RATE = 1e-4
 OPTIMISER = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-BATCH_SIZE = 8
+BATCH_SIZE = 4
 
 
 # Load data
