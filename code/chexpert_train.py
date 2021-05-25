@@ -133,7 +133,7 @@ EPOCHS = 300
 LOSS = torch.nn.BCELoss()
 LEARNING_RATE = 1e-4
 OPTIMISER = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-BATCH_SIZE = 4
+BATCH_SIZE = 2
 
 
 # Load data
