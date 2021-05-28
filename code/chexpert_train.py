@@ -142,8 +142,8 @@ BATCH_SIZE = 2
 train_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((224, 224)),
     # Data Augmentation
-    # torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
-    # torchvision.transforms.RandomHorizontalFlip(p=0.5),
+    torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(0.05, 0.1), scale=(0.95, 1.05), shear=0, resample=0, fillcolor=(0, 0, 0)),
+    torchvision.transforms.RandomHorizontalFlip(p=0.5),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(mean=MEAN, std=STD)
 ])
@@ -278,7 +278,7 @@ for epoch in range(EPOCHS):
     train_losses[epoch] = avg_train_loss
     # Save it to directory
     np.save(
-        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_tr_losses.npy"),
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldamdaug_tr_losses.npy"),
         arr=train_losses,
         allow_pickle=True
     )
@@ -295,7 +295,7 @@ for epoch in range(EPOCHS):
     train_metrics[epoch, 3] = train_f1
     # Save it to directory
     np.save(
-        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_tr_metrics.npy"),
+        file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldamdaug_tr_metrics.npy"),
         arr=train_metrics,
         allow_pickle=True
     )
@@ -308,7 +308,7 @@ for epoch in range(EPOCHS):
         min_train_loss = avg_train_loss
 
         # Save checkpoint
-        model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldam_tr_chexpert.pt")
+        model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldamdaug_tr_chexpert.pt")
         torch.save(model.state_dict(), model_path)
 
         # print(f"Successfully saved at: {model_path}")
@@ -389,7 +389,7 @@ for epoch in range(EPOCHS):
         val_losses[epoch] = avg_val_loss
         # Save it to directory
         np.save(
-            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_val_losses.npy"),
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldamdaug_val_losses.npy"),
             arr=val_losses,
             allow_pickle=True
         )
@@ -406,7 +406,7 @@ for epoch in range(EPOCHS):
         val_metrics[epoch, 3] = val_f1
         # Save it to directory
         np.save(
-            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldam_val_metrics.npy"),
+            file=os.path.join(history_dir, f"{MODEL_NAME.lower()}_mldamdaug_val_metrics.npy"),
             arr=val_metrics,
             allow_pickle=True
         )
@@ -420,7 +420,7 @@ for epoch in range(EPOCHS):
             print("Saving best model on validation...")
 
             # Save checkpoint
-            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldam_val_chexpert.pt")
+            model_path = os.path.join(weights_dir, f"{MODEL_NAME.lower()}_mldamdaug_val_chexpert.pt")
             torch.save(model.state_dict(), model_path)
 
             # print(f"Successfully saved at: {model_path}")
