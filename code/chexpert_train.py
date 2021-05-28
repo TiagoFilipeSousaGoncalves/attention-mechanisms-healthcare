@@ -43,7 +43,7 @@ if os.path.isdir(history_dir) == False:
 
 
 # Choose GPU
-DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
 
 
 # Choose Model Name
