@@ -43,7 +43,7 @@ if os.path.isdir(history_dir) == False:
 
 
 # Choose GPU
-DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
 # Choose Model Name
@@ -133,7 +133,7 @@ EPOCHS = 300
 LOSS = torch.nn.BCELoss()
 LEARNING_RATE = 1e-4
 OPTIMISER = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-BATCH_SIZE = 4
+BATCH_SIZE = 8
 
 
 # Load data
