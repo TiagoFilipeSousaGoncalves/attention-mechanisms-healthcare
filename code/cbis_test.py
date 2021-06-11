@@ -27,8 +27,8 @@ from cbis_data_utilities import map_images_and_labels, TorchDatasetFromNumpyArra
 # Directories
 data_dir = "/ctm-hdd-pool01/tgoncalv/datasets/CBIS_proprocessed"
 test_dir = os.path.join(data_dir, "test")
-weights_dir = os.path.join("results", "cbis", "weights")
-results_dir = os.path.join("results", "cbis")
+weights_dir = os.path.join("/ctm-hdd-pool01/tgoncalv/attention-mechanisms-healthcare", "results", "cbis", "weights")
+results_dir = os.path.join("/ctm-hdd-pool01/tgoncalv/attention-mechanisms-healthcare", "results", "cbis")
 
 
 
