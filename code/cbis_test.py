@@ -41,7 +41,7 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 # Lists to iterate
 MODEL_NAMES = ['DenseNet121', 'ResNet50', 'VGG16']
 BEST_WEIGHTS = ['tr', 'val']
-TRAIN_SETTINGS = ['baseline', 'baseline_daug', 'mldam', 'mldamdaug']
+TRAIN_SETTINGS = ['baseline', 'baselinedaug', 'mldam', 'mldamdaug']
 USE_ATTENTION = ['mldam', 'mldamdaug']
 
 # Mean and STD to Normalize
