@@ -159,10 +159,10 @@ for model_name in MODEL_NAMES:
 
 
             # Load weights and put model in evaluation mode
-            model = model.to(DEVICE)
             weights_fname = os.path.join(weights_dir, f"{model_name.lower()}_{train_setting}_{weight_split}_cbis.pt")
             model.load_state_dict(torch.load(weights_fname, map_location='cpu'))
             model.eval()
+            model = model.to(DEVICE)
 
             # Deactivate gradients
             with torch.no_grad():
