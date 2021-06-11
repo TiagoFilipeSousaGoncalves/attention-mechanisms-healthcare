@@ -134,7 +134,7 @@ for model_name in MODEL_NAMES:
 
 
             # Hyper-parameters
-            BATCH_SIZE = 4
+            BATCH_SIZE = 1
 
 
             # Load data
