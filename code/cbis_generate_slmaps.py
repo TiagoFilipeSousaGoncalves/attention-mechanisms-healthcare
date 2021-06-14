@@ -214,8 +214,8 @@ for model_name in MODEL_NAMES:
             model.load_state_dict(torch.load(baseline_weights, map_location=DEVICE))
             model.eval()
 
-            dl_baseline = Saliency(model, abs=False)
-            attr_dl_baseline = attribute_image_features(model, dl_baseline, input_img, labels[0])
+            dl_baseline = Saliency(model)
+            attr_dl_baseline = attribute_image_features(model, dl_baseline, input_img, labels[0], abs=False)
             attr_dl_baseline = np.transpose(attr_dl_baseline.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
@@ -233,8 +233,8 @@ for model_name in MODEL_NAMES:
             model.load_state_dict(torch.load(baselinedaug_weigths, map_location=DEVICE))
             model.eval()
 
-            dl_baselinedaug = Saliency(model, abs=False)
-            attr_dl_baselinedaug = attribute_image_features(model, dl_baselinedaug, input_img, labels[0])
+            dl_baselinedaug = Saliency(model)
+            attr_dl_baselinedaug = attribute_image_features(model, dl_baselinedaug, input_img, labels[0], abs=False)
             attr_dl_baselinedaug = np.transpose(attr_dl_baselinedaug.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
@@ -252,8 +252,8 @@ for model_name in MODEL_NAMES:
             mldam_model.load_state_dict(torch.load(mldam_weights, map_location=DEVICE))
             mldam_model.eval()
 
-            dl_mldam = Saliency(mldam_model, abs=False)
-            attr_dl_mldam = attribute_image_features(mldam_model, dl_mldam, input_img, labels[0])
+            dl_mldam = Saliency(mldam_model)
+            attr_dl_mldam = attribute_image_features(mldam_model, dl_mldam, input_img, labels[0], abs=False)
             attr_dl_mldam = np.transpose(attr_dl_mldam.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
@@ -271,8 +271,8 @@ for model_name in MODEL_NAMES:
             mldam_model.load_state_dict(torch.load(mldamdaug_weigths, map_location=DEVICE))
             mldam_model.eval()
 
-            dl_mldamdaug = Saliency(mldam_model, abs=False)
-            attr_dl_mldamdaug = attribute_image_features(mldam_model, dl_mldamdaug, input_img, labels[0])
+            dl_mldamdaug = Saliency(mldam_model)
+            attr_dl_mldamdaug = attribute_image_features(mldam_model, dl_mldamdaug, input_img, labels[0], abs=False)
             attr_dl_mldamdaug = np.transpose(attr_dl_mldamdaug.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
@@ -281,7 +281,6 @@ for model_name in MODEL_NAMES:
                 arr=attr_dl_mldamdaug,
                 allow_pickle=True
             )
-            
 
 
 
