@@ -101,7 +101,30 @@ for model_name in MODEL_NAMES:
 
         # Move data data anda model to GPU (or not)
         images, labels = images.to(DEVICE), labels.to(DEVICE)
+
+
+        if model_name == 'DenseNet121':
+            model = DenseNet121(channels=CHANNELS, height=HEIGHT, width=WIDTH, nr_classes=NR_CLASSES)
+            mldam_model = MultiLevelDAM(channels=CHANNELS, height=HEIGHT, width=WIDTH, nr_classes=NR_CLASSES, backbone=model_name.lower()
+             pass
         
+        elif model_name == 'ResNet50':
+            pass
+        
+        elif model_name == 'VGG16':
+            pass
+
+
+        # Load models to assess logits
+        baseline_weights = os.path.join(weights_dir, f"{model_name.lower()}_baseline_val_cbis.pt")
+       
+        
+        
+        baselinedaug_weigths = os.path.join(weights_dir, f"{model_name.lower()}_baselinedaug_val_cbis.pt")
+        
+        mldam_weights = os.path.join(weights_dir, f"{model_name.lower()}_mldam_val_cbis.pt")
+        
+        mldamdaug_weigths = os.path.join(weights_dir, f"{model_name.lower()}_mldamdaug_val_cbis.pt")
 
         # Forward pass: compute predicted outputs by passing inputs to the model
         logits = model(images)
