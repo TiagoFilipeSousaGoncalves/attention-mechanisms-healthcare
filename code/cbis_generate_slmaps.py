@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 import torchvision
 
 # Captum Imports
-from captum.attr import DeepLift
+from captum.attr import Saliency
 
 # Project Imports
 from model_utilities import DenseNet121, ResNet50, VGG16, MultiLevelDAM
@@ -109,6 +109,9 @@ test_loader = DataLoader(dataset=test_set, batch_size=1, shuffle=False)
 # Go through MODEL NAMES
 for model_name in MODEL_NAMES:
 
+    if os.path.isdir(os.path.join(attributes_dir, f"{model_name.lower()}")) == False:
+        os.makedirs(os.path.join(attributes_dir, f"{model_name.lower()}"))
+
     # Iterate through dataloader
     for batch_idx, (images, labels) in enumerate(test_loader):
 
@@ -193,7 +196,7 @@ for model_name in MODEL_NAMES:
 
             # Save image
             np.save(
-                file=os.path.join(attributes_dir, f"img_{batch_idx}_original_{label}.npy"),
+                file=os.path.join(attributes_dir, f"{model_name.lower()}", f"img_{batch_idx}_original_{label}.npy"),
                 arr=original_image,
                 allow_pickle=True
             )
@@ -211,13 +214,13 @@ for model_name in MODEL_NAMES:
             model.load_state_dict(torch.load(baseline_weights, map_location=DEVICE))
             model.eval()
 
-            dl_baseline = DeepLift(model)
+            dl_baseline = Saliency(model, abs=False)
             attr_dl_baseline = attribute_image_features(model, dl_baseline, input_img, labels[0])
             attr_dl_baseline = np.transpose(attr_dl_baseline.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
             np.save(
-                file=os.path.join(attributes_dir, f"img_{batch_idx}_dl_baseline_label_{label}.npy"),
+                file=os.path.join(attributes_dir, f"{model_name.lower()}", f"img_{batch_idx}_dl_baseline_label_{label}.npy"),
                 arr=attr_dl_baseline,
                 allow_pickle=True
             )
@@ -230,13 +233,13 @@ for model_name in MODEL_NAMES:
             model.load_state_dict(torch.load(baselinedaug_weigths, map_location=DEVICE))
             model.eval()
 
-            dl_baselinedaug = DeepLift(model)
+            dl_baselinedaug = Saliency(model, abs=False)
             attr_dl_baselinedaug = attribute_image_features(model, dl_baselinedaug, input_img, labels[0])
             attr_dl_baselinedaug = np.transpose(attr_dl_baselinedaug.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
             np.save(
-                file=os.path.join(attributes_dir, f"img_{batch_idx}_dl_baselinedaug_label_{label}.npy"),
+                file=os.path.join(attributes_dir, f"{model_name.lower()}", f"img_{batch_idx}_dl_baselinedaug_label_{label}.npy"),
                 arr=attr_dl_baselinedaug,
                 allow_pickle=True
             )
@@ -249,13 +252,13 @@ for model_name in MODEL_NAMES:
             mldam_model.load_state_dict(torch.load(mldam_weights, map_location=DEVICE))
             mldam_model.eval()
 
-            dl_mldam = DeepLift(mldam_model)
+            dl_mldam = Saliency(mldam_model, abs=False)
             attr_dl_mldam = attribute_image_features(mldam_model, dl_mldam, input_img, labels[0])
             attr_dl_mldam = np.transpose(attr_dl_mldam.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
             np.save(
-                file=os.path.join(attributes_dir, f"img_{batch_idx}_dl_mldam_label_{label}.npy"),
+                file=os.path.join(attributes_dir, f"{model_name.lower()}", f"img_{batch_idx}_dl_mldam_label_{label}.npy"),
                 arr=attr_dl_mldam,
                 allow_pickle=True
             )
@@ -268,13 +271,13 @@ for model_name in MODEL_NAMES:
             mldam_model.load_state_dict(torch.load(mldamdaug_weigths, map_location=DEVICE))
             mldam_model.eval()
 
-            dl_mldamdaug = DeepLift(mldam_model)
+            dl_mldamdaug = Saliency(mldam_model, abs=False)
             attr_dl_mldamdaug = attribute_image_features(mldam_model, dl_mldamdaug, input_img, labels[0])
             attr_dl_mldamdaug = np.transpose(attr_dl_mldamdaug.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 
             # Save attribute
             np.save(
-                file=os.path.join(attributes_dir, f"img_{batch_idx}_dl_mldamdaug_label_{label}.npy"),
+                file=os.path.join(attributes_dir, f"{model_name.lower()}", f"img_{batch_idx}_dl_mldamdaug_label_{label}.npy"),
                 arr=attr_dl_mldamdaug,
                 allow_pickle=True
             )
