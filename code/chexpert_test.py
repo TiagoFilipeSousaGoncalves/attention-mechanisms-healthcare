@@ -156,7 +156,7 @@ for model_name in MODEL_NAMES:
             try:
                 # Load weights and put model in evaluation mode
                 model = model.to(DEVICE)
-                weights_fname = os.path.join(weights_dir, f"{model_name.lower()}_{train_setting}_{weight_split}_cbis.pt")
+                weights_fname = os.path.join(weights_dir, f"{model_name.lower()}_{train_setting}_{weight_split}_chexpert.pt")
                 model.load_state_dict(torch.load(weights_fname, map_location=DEVICE))
                 model.eval()
                 
