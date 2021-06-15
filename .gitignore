@@ -138,3 +138,6 @@ dmypy.json
 # System
 *.sh
 *.out
+
+# NumPy
+*.npy
