@@ -141,3 +141,6 @@ dmypy.json
 
 # NumPy
 *.npy
+
+# Directories
+attributes-figs/
