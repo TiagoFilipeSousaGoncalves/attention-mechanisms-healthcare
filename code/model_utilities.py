@@ -82,6 +82,7 @@ class ResNet50(torch.nn.Module):
         # Compute in_features
         _in_features = torch.rand(1, self.channels, self.height, self.width)
         _in_features = self.resnet50(_in_features)
+        # print(_in_features.shape)
         _in_features = _in_features.size(0) * _in_features.size(1) * _in_features.size(2) * _in_features.size(3)
 
         # Create FC1 Layer for classification
@@ -392,7 +393,7 @@ class MultiLevelDAM(torch.nn.Module):
             )
 
 
-            # Block-3; shape()
+            # Block-3; shape(2048, 1, 1)
             self.resnetblock3 = self.backbone
 
 
@@ -652,7 +653,7 @@ class MultiLevelDAM(torch.nn.Module):
 
 # TODO: Erase uppon review
 # Tests
-# mldam = MultiLevelDAM(backbone="resnet50")
+# mldam = ResNet50(3, 224, 224, 1)
 # print(mldam)
 # torchsummary.summary(mldam, (3, 224, 224))
 # m = torchvision.models.resnet50(pretrained=True)
