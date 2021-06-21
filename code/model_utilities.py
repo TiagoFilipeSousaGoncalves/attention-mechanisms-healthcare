@@ -393,7 +393,7 @@ class MultiLevelDAM(torch.nn.Module):
             )
 
 
-            # Block-3; shape(2048, 1, 1)
+            # Block-3; shape(2048, 7, 7)
             self.resnetblock3 = self.backbone
 
 
@@ -653,7 +653,8 @@ class MultiLevelDAM(torch.nn.Module):
 
 # TODO: Erase uppon review
 # Tests
-# mldam = ResNet50(3, 224, 224, 1)
+# mldam = MultiLevelDAM(3, 224, 224, 1, "resnet50")
+# mldam(torch.rand(1, 3, 224, 224))
 # print(mldam)
 # torchsummary.summary(mldam, (3, 224, 224))
 # m = torchvision.models.resnet50(pretrained=True)
