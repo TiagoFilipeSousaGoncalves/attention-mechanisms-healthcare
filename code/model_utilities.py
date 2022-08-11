@@ -1,16 +1,18 @@
-# Imports
-import numpy as np
-import _pickle as cPickle
-import os
-
-
 # PyTorch Imports
 import torch
 import torchvision
-import torchsummary
 
 
-# Create PyTorch Models
+
+# Function: Will be used for calling attribute on attribution algorithm defined in input
+def attribute_image_features(model, algorithm, img_input, gt_label, **kwargs):
+    model.zero_grad()
+    tensor_attributions = algorithm.attribute(img_input, target=gt_label, **kwargs)
+
+    return tensor_attributions
+
+
+
 # Model: DenseNet 121 (Baseline)
 class DenseNet121(torch.nn.Module):
     def __init__(self, channels, height, width, nr_classes):
@@ -41,7 +43,7 @@ class DenseNet121(torch.nn.Module):
 
 
         return
-    
+
 
     def forward(self, inputs):
         # Compute Backbone features
@@ -113,6 +115,7 @@ class ResNet50(torch.nn.Module):
         return outputs
 
 
+
 # Model: VGG-16 (Baseline)
 class VGG16(torch.nn.Module):
     def __init__(self, channels, height, width, nr_classes):
@@ -164,7 +167,7 @@ class VGG16(torch.nn.Module):
 
 
 
-# Class: PAM Module
+# Model: PAM Module
 class PAM_Module(torch.nn.Module):
     def __init__(self, channels=1024, height=7, width=7):
         super(PAM_Module, self).__init__()
@@ -181,7 +184,6 @@ class PAM_Module(torch.nn.Module):
 
         return
 
-    
 
     def forward(self, v1, q1, k1):
         # We first reshape the inputs (v1, q1, k1)
@@ -224,7 +226,7 @@ class PAM_Module(torch.nn.Module):
 
 
 
-# Class: CAM Module
+# Model: CAM Module
 class CAM_Module(torch.nn.Module):
     def __init__(self, channels=1024, height=7, width=7):
         super(CAM_Module, self).__init__()
@@ -236,7 +238,6 @@ class CAM_Module(torch.nn.Module):
 
 
         return
-    
 
 
     def forward(self, v1, q1, k1):
@@ -273,7 +274,7 @@ class CAM_Module(torch.nn.Module):
 
 
 
-# Multi-Level DAM
+# Model: Multi-Level DAM
 class MultiLevelDAM(torch.nn.Module):
     def __init__(self, channels=3, height=224, width=224, nr_classes=1, backbone="densenet121"):
         super(MultiLevelDAM, self).__init__()
@@ -434,7 +435,7 @@ class MultiLevelDAM(torch.nn.Module):
         self.drop2 = torch.nn.Dropout(0.25)
 
         return
-    
+
 
 
     def forward(self, inputs):
@@ -467,7 +468,6 @@ class MultiLevelDAM(torch.nn.Module):
             # xlast = vgg_model.get_layer('conv5_3').output
             back_fts = self.backbone.features(inputs)
             # print(f"backbone fts size: {back_fts.size()}")
-        
 
             # Attention Modules
             # PAM
@@ -479,8 +479,7 @@ class MultiLevelDAM(torch.nn.Module):
             pam_out = self.pam(v1, q1, k1)
             pam_out = self.relu1(pam_out)
             pam_out = self.batch_norm1(pam_out)
-            
-            
+
             # CAM
             # att_2= self.CAM()
             # x_2=att_2([xlast,xlast,xlast])
@@ -512,14 +511,13 @@ class MultiLevelDAM(torch.nn.Module):
             outputs = self.fc2(outputs)
             outputs = self.fc_relu2(outputs)
             outputs = self.drop2(outputs)
-            
-            
+
             # Last FC Layer
             # out = Dense(self.nb_class, activation='softmax', name='fc8')(x)
             # model = Model(vgg_model.input, out)
             outputs = self.fc3(outputs)
             outputs = self.fc_sigmoid(outputs)
-        
+
 
         # VGG-16
         elif self.backbone_name == "vgg16":
@@ -542,19 +540,16 @@ class MultiLevelDAM(torch.nn.Module):
             # print(f"v1 size: {v1.size()}")
 
 
-
             # Backbone features
             back_fts = self.backbone(inputs)
             # print(f"backbone fts size: {back_fts.size()}")
-        
 
             # Attention Modules
             # PAM
             pam_out = self.pam(v1, q1, k1)
             pam_out = self.relu1(pam_out)
             pam_out = self.batch_norm1(pam_out)
-            
-            
+
             # CAM
             cam_out = self.cam(back_fts, back_fts, back_fts)
             cam_out = self.relu2(cam_out)
@@ -576,12 +571,11 @@ class MultiLevelDAM(torch.nn.Module):
             outputs = self.fc2(outputs)
             outputs = self.fc_relu2(outputs)
             outputs = self.drop2(outputs)
-            
-            
+
             # Last FC Layer
             outputs = self.fc3(outputs)
             outputs = self.fc_sigmoid(outputs)
-        
+
 
         # ResNet-50
         elif self.backbone_name == "resnet50":
@@ -610,15 +604,14 @@ class MultiLevelDAM(torch.nn.Module):
             # Backbone features
             back_fts = self.backbone(inputs)
             # print(f"backbone fts size: {back_fts.size()}")
-        
+
 
             # Attention Modules
             # PAM
             pam_out = self.pam(v1, q1, k1)
             pam_out = self.relu1(pam_out)
             pam_out = self.batch_norm1(pam_out)
-            
-            
+
             # CAM
             cam_out = self.cam(back_fts, back_fts, back_fts)
             cam_out = self.relu2(cam_out)
@@ -640,25 +633,10 @@ class MultiLevelDAM(torch.nn.Module):
             outputs = self.fc2(outputs)
             outputs = self.fc_relu2(outputs)
             outputs = self.drop2(outputs)
-            
-            
+
             # Last FC Layer
             outputs = self.fc3(outputs)
             outputs = self.fc_sigmoid(outputs)
         
 
         return outputs
-
-
-
-# TODO: Erase uppon review
-# Tests
-# mldam = MultiLevelDAM(3, 224, 224, 1, "resnet50")
-# mldam(torch.rand(1, 3, 224, 224))
-# print(mldam)
-# torchsummary.summary(mldam, (3, 224, 224))
-# m = torchvision.models.resnet50(pretrained=True)
-# m = torch.nn.Sequential(*(list(m.children())[:-2]))
-# torchsummary.summary(m, (3, 224, 224))
-# m = torch.nn.Sequential(*(list(m.children())[0:7]))
-# torchsummary.summary(m, (3, 224, 224))
