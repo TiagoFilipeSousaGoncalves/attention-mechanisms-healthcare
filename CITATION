@@ -1,0 +1,7 @@
+@inproceedings{goncalves2021recpad,
+	author = {Tiago Gonçalves and Jaime S. Cardoso},
+	title = {{Preliminary Study on the Impact of Attention Mechanisms for Medical Image Classification}},
+	booktitle = {27th Portuguese Conference in Pattern Recognition (RECPAD)},
+	year = {2021},
+    address = {Évora, Portugal}
+}
